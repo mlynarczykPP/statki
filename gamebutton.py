@@ -19,10 +19,14 @@ class GameButton(Button):
     def hit(self):
         self.isShip = True
         self.wasHit = True
+        print("Hit")
+        self.updateColor()
 
     def miss(self):
         self.isShip = False
         self.wasHit = True
+        print("Miss")
+        self.updateColor()
 
     def updateColor(self):
         if self.isShip and self.wasHit:

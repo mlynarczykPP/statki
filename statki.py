@@ -6,6 +6,8 @@ import plansza
 from gamebutton import GameButton
 
 class Statki(GridLayout):
+    isGameStarted = False
+
     def __init__(self, **kwargs):
         super(Statki, self).__init__(**kwargs)
         self.ids['opponent'].disabled = True
@@ -23,20 +25,24 @@ class Statki(GridLayout):
         self.ids['rozpocznijGameButton'].disabled=True
         self.ids['graId'].disabled=True
         print("Click")
+        self.isGameStarted = True
 
     def onMessage(self, message):
-        x = message['x']
-        y = message['y']
+        x = str(message['x'])
+        y = str(message['y'])
         if self.isShip(x, y):
             self.ids['opponent'].ids[y].ids[x].hit()
         else:
             self.ids['opponent'].ids[y].ids[x].miss()
 
     def sendMessage(self, message):
+        if not self.isGameStarted:
+            return
+
         print(message)
         self.onMessage(message)
 
-    def isShip(self, x, y):
+    def isShip(self, x: str, y: str):
         return self.ids['player'].ids[y].ids[x].isShip
 
 class StatkiApp(App):
