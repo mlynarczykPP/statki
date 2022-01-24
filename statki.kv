@@ -1,0 +1,41 @@
+#: include plansza.kv
+
+<Statki>:
+    canvas.before:
+        Color:
+            rgb: (0.22,0.49,0.64)
+        Rectangle:
+            size: self.width, self.height
+            pos: self.x, self.y
+
+    rows: 3
+    GridLayout:
+        cols: 2
+        size_hint: 1, 0.05
+        Label:
+            color: 0,0,0
+            bold: True
+            text: "Gracz 1"
+        Label:
+            color: 0,0,0
+            bold: True
+            text: "Gracz 2"
+
+    GridLayout:
+        cols: 2
+        size_hint: 1, 0.8
+        Plansza:
+            id: player
+        Plansza:
+            id: opponent
+
+    GridLayout:
+        cols: 2
+        size_hint: 1, 0.05
+        TextInput:
+            id: graId
+            multiline: False
+        Button:
+            text: "Rozpocznij"
+            id: rozpocznijGameButton
+            on_release: root.startButtonClick()
