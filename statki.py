@@ -22,18 +22,21 @@ class Statki(GridLayout):
     def startButtonClick(self):
         self.ids['player'].disabled = True
         self.ids['opponent'].disabled = False
-        self.ids['rozpocznijGameButton'].disabled=True
-        self.ids['graId'].disabled=True
+        self.ids['rozpocznijGameButton'].disabled = True
+        self.ids['graId'].disabled = True
         print("Click")
         self.isGameStarted = True
 
     def onMessage(self, message):
-        x = str(message['x'])
-        y = str(message['y'])
-        if self.isShip(x, y):
-            self.ids['opponent'].ids[y].ids[x].hit()
+        x = int(message['x'])
+        y = int(message['y'])
+        self.ids['player'].ids[str(y)].ids[str(x)].setWasHit()
+        if self.isShip(x, y) and self.isSunken(x, y, {}):
+            self.sank(x, y, {})
+        elif self.isShip(x, y):
+            self.ids['opponent'].ids[str(y)].ids[str(x)].hit()
         else:
-            self.ids['opponent'].ids[y].ids[x].miss()
+            self.ids['opponent'].ids[str(y)].ids[str(x)].miss()
 
     def sendMessage(self, message):
         if not self.isGameStarted:
@@ -42,13 +45,45 @@ class Statki(GridLayout):
         print(message)
         self.onMessage(message)
 
-    def isShip(self, x: str, y: str):
-        return self.ids['player'].ids[y].ids[x].isShip
+    def isShip(self, x: int, y: int):
+        return self.ids['player'].ids[str(y)].ids[str(x)].isShip
+
+    def wasHit(self, x: int, y: int):
+        return self.ids['player'].ids[str(y)].ids[str(x)].wasHit
+
+    def isSunken(self, x, y, visited):
+        if not self.isShip(x, y):
+            return False
+
+        if (x, y) not in visited:
+            if self.wasHit(x, y):
+                visited[(x, y)] = True
+                for i in range(y - 1, y + 2):
+                    if i == 0 or i == 11:
+                        continue
+                    for j in range(x - 1, x + 2):
+                        if j == 0 or j == 11 or (i == y and j == x):
+                            continue
+                        if self.isShip(j, i) and not self.isSunken(j, i, visited):
+                            return False
+            else:
+                return False
+        return True
+
+    def sank(self, x, y, visited):
+        if (x, y) not in visited:
+            visited[(x, y)] = True
+            for i in range(y - 1, y + 2):
+                if i == 0 or i == 11:
+                    continue
+                for j in range(x - 1, x + 2):
+                    if j == 0 or j == 11:
+                        continue
+                    self.ids['player'].ids[str(y)].ids[str(x)].setWasHit()
+                    self.ids['opponent'].ids[str(y)].ids[str(x)].setWasHit()
+                    if self.ids['opponent'].ids[str(y)].ids[str(x)].isShip:
+                        self.sank(j, i, visited)
 
 class StatkiApp(App):
     def build(self):
         return Statki()
-
-if __name__ == '__main__':
-    Config.read('config.ini')
-    StatkiApp().run()

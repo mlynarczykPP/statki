@@ -16,17 +16,19 @@ class GameButton(Button):
         self.updateColor()
         self.sendMessage(self.coordinate)
 
+    def setWasHit(self, value=True):
+        self.wasHit = value
+        self.updateColor()
+
     def hit(self):
         self.isShip = True
-        self.wasHit = True
+        self.setWasHit()
         print("Hit")
-        self.updateColor()
 
     def miss(self):
         self.isShip = False
-        self.wasHit = True
+        self.setWasHit()
         print("Miss")
-        self.updateColor()
 
     def updateColor(self):
         if self.isShip and self.wasHit:
